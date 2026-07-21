@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Project {
+  id            String   @id
+  name          String
+  status        String   @default("draft")
+  progress      Int      @default(0)
+  mode          String
+  template      String
+  aspectRatio   String
+  resolution    String
+  density       String
+  sourceUrls    String
+  customScript  String?
+  duration      Int      @default(0)
+  thumbnail     String?
+  productionScore Int    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  scenes        Scene[]
+  jobs          Job[]
+  timeline      Timeline?
+
+  @@index([updatedAt])
+  @@index([status])
+}
+
+model Scene {
+  id          String   @id
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  position    Int
+  startMs     Int
+  endMs       Int
+  narration   String
+  topic       String
+  emotion     String
+  keywords    String
+  visualType  String
+  assetUrl    String?
+  assetMeta   String?
+  qualityScore Int      @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([projectId, position])
+  @@index([projectId])
+}
+
+model Timeline {
+  id         String   @id
+  projectId  String   @unique
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tracks     String
+  version    Int      @default(1)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Job {
+  id         String   @id
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  type       String
+  status     String   @default("queued")
+  stage      String   @default("queued")
+  progress   Int      @default(0)
+  detail     String?
+  error      String?
+  createdAt  DateTime @default(now())
+  startedAt  DateTime?
+  finishedAt DateTime?
+
+  @@index([projectId])
+  @@index([status])
+}
+
+model Asset {
+  id           String   @id
+  provider     String
+  providerId   String
+  type         String
+  url          String
+  previewUrl   String?
+  localPath    String?
+  width        Int?
+  height       Int?
+  duration     Int?
+  keywords     String
+  qualityScore Int      @default(0)
+  relevanceScore Int    @default(0)
+  metadata     String?
+  createdAt    DateTime @default(now())
+  lastUsedAt   DateTime @default(now())
+
+  @@unique([provider, providerId])
+  @@index([type])
+  @@index([lastUsedAt])
+}
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model Template {
+  id          String   @id
+  name        String
+  category    String
+  description String
+  config      String
+  builtIn     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
