@@ -2,16 +2,12 @@ name: Build macOS installers
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - 'v*'
 
 permissions:
   contents: read
 
 jobs:
   build-macos:
-    name: macOS ${{ matrix.arch }}
     strategy:
       fail-fast: false
       matrix:
@@ -20,11 +16,13 @@ jobs:
             runner: macos-15
           - arch: x64
             runner: macos-15-intel
+
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 45
+
     env:
-      VIDEO_REPLICA_SKIP_PYTHON: '1'
-      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      VIDEO_REPLICA_SKIP_PYTHON: "1"
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
 
     steps:
       - name: Check out source
@@ -39,30 +37,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Bundle native macOS yt-dlp
+      - name: Bundle macOS yt-dlp
         run: |
           curl --fail --location --retry 3 \
             https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos \
             --output node_modules/youtube-dl-exec/bin/yt-dlp
           chmod +x node_modules/youtube-dl-exec/bin/yt-dlp
 
-      - name: Verify native media tools
-        run: |
-          node_modules/ffmpeg-static/ffmpeg -version | head -n 1
-          node_modules/ffmpeg-static/ffmpeg -hide_banner -filters 2>&1 | grep -E ' ass .*Render ASS subtitles'
-          node_modules/youtube-dl-exec/bin/yt-dlp --version
-          file node_modules/ffmpeg-static/ffmpeg
-          file node_modules/youtube-dl-exec/bin/yt-dlp
-
-      - name: Build and package
+      - name: Build installer
         run: |
           npm run build
           npx electron-builder --mac --${{ matrix.arch }} --publish never
 
-      - name: List artifacts
-        run: ls -lh dist/Video-Replica-*-${{ matrix.arch }}.*
-
-      - name: Upload macOS installer
+      - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
           name: Video-Replica-macOS-${{ matrix.arch }}
