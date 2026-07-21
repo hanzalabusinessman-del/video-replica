@@ -1,0 +1,103 @@
+{
+  "name": "video-replica",
+  "version": "0.1.9",
+  "private": true,
+  "description": "AI-assisted desktop video production studio",
+  "main": "./out/main/index.js",
+  "type": "module",
+  "author": "Video Replica",
+  "scripts": {
+    "postinstall": "node scripts/setup.mjs",
+    "setup": "node scripts/setup.mjs",
+    "dev": "electron-vite dev",
+    "preview": "electron-vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "build": "npm run setup && npm run typecheck && electron-vite build",
+    "package": "npm run build && electron-builder --publish never",
+    "package:mac": "npm run build && electron-builder --mac --publish never",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "clean": "node scripts/clean.mjs"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "latest",
+    "@prisma/client": "latest",
+    "@tanstack/react-query": "latest",
+    "class-variance-authority": "latest",
+    "clsx": "latest",
+    "dotenv": "latest",
+    "ffmpeg-static": "latest",
+    "ffprobe-static": "latest",
+    "framer-motion": "latest",
+    "lucide-react": "latest",
+    "p-queue": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-hook-form": "latest",
+    "react-router-dom": "latest",
+    "tailwind-merge": "latest",
+    "sql.js": "latest",
+    "winston": "latest",
+    "youtube-dl-exec": "latest",
+    "zod": "latest",
+    "zustand": "latest"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@types/sql.js": "latest",
+    "@vitejs/plugin-react": "^5.1.1",
+    "electron": "latest",
+    "electron-builder": "latest",
+    "electron-vite": "latest",
+    "prisma": "latest",
+    "tailwindcss": "latest",
+    "typescript": "latest",
+    "vite": "^7.3.6"
+  },
+  "build": {
+    "appId": "com.videoreplica.studio",
+    "productName": "Video Replica",
+    "directories": {
+      "buildResources": "build"
+    },
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/ffmpeg-static/**/*",
+      "node_modules/ffprobe-static/**/*",
+      "node_modules/youtube-dl-exec/**/*"
+    ],
+    "compression": "store",
+    "files": ["out/**/*", "package.json", "prisma/**/*"],
+    "extraResources": [{ "from": "python", "to": "python" }],
+    "win": {
+      "target": ["nsis"],
+      "icon": "build/icon.ico",
+      "artifactName": "Video-Replica-${version}-Setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Video Replica",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeader": "build/installerHeader.bmp",
+      "installerSidebar": "build/installerSidebar.bmp",
+      "uninstallerSidebar": "build/uninstallerSidebar.bmp",
+      "include": "build/installer.nsh"
+    },
+    "mac": {
+      "target": ["dmg", "zip"],
+      "icon": "build/icon.icns",
+      "category": "public.app-category.video",
+      "artifactName": "Video-Replica-${version}-${arch}.${ext}",
+      "hardenedRuntime": false,
+      "identity": null
+    },
+    "linux": { "target": ["AppImage"], "category": "AudioVideo" }
+  }
+}

@@ -1,0 +1,14 @@
+node_modules/
+out/
+dist/
+release/
+.env
+.env.local
+.venv/
+runtime/
+prisma/*.db
+prisma/*.db-journal
+*.log
+__pycache__/
+.DS_Store
+Thumbs.db
